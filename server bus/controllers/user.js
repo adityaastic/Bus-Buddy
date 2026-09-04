@@ -104,5 +104,52 @@ const refreshToken = async (req, res) => {
   }
 };
 
-// ✅ Export only loginOrSignUp & refreshToken
-export { loginOrSignUp, refreshToken };
+// 🔹 Phone Login / OTP Bypass (OTP: 1234)
+const phoneLogin = async (req, res) => {
+  console.log("Phone login request received:", req.body);
+  const { phone, otp } = req.body;
+
+  if (!phone || String(phone).trim().length !== 10) {
+    return res.status(400).json({ error: "Please enter a valid 10-digit mobile number" });
+  }
+
+  if (otp && String(otp).trim() !== "1234") {
+    return res.status(400).json({ error: "Invalid OTP. Use default OTP: 1234" });
+  }
+
+  const cleanPhone = String(phone).trim();
+
+  try {
+    let user = await User.findOne({ phone: cleanPhone });
+    let isNewUser = false;
+
+    if (!user) {
+      isNewUser = true;
+      user = new User({
+        phone: cleanPhone,
+        email: `${cleanPhone}@busbuddy.com`,
+        name: `User ${cleanPhone.slice(-4)}`,
+        user_photo: "",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      await user.save();
+    }
+
+    const { accessToken, refreshToken } = generateTokens(user.toObject());
+
+    res.status(200).json({
+      user,
+      accessToken,
+      refreshToken,
+      isNewUser,
+    });
+  } catch (error) {
+    console.error("Phone login error:", error);
+    res.status(500).json({ error: "Failed to authenticate with phone number." });
+  }
+};
+
+// ✅ Export loginOrSignUp, phoneLogin & refreshToken
+export { loginOrSignUp, phoneLogin, refreshToken };
+

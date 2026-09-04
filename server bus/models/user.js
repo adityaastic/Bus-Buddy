@@ -2,9 +2,9 @@ import mongoose, { Schema } from "mongoose";
 
 const UserSchema = new Schema({
     google_id: { type: String },
-    phone: { type: String },
+    phone: { type: String, sparse: true },
     name: { type: String },
-    email: { type: String, required: true, unique: true },
+    email: { type: String, sparse: true },
     user_photo: { type: String },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now }

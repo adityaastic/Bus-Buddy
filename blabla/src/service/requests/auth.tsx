@@ -21,6 +21,16 @@ export const loginWithGoogle = async (idToken: string) => {
   return data?.user;
 };
 
+export const loginWithPhone = async ({ phone, otp }: { phone: string; otp?: string }) => {
+  const { data } = await apiClient.post("/user/phone-login", { phone, otp: otp || "1234" });
+
+  setAccessToken(data?.accessToken);
+  setRefreshToken(data?.refreshToken);
+
+  return data?.user;
+};
+
+
 export const logout = async () => {
   removeAccessToken();
   removeRefreshToken();
